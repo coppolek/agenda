@@ -1,0 +1,6 @@
+{
+  "name": "Calendario Ferie e Permessi",
+  "description": "Gestisci e traccia ferie, permessi, malattie e smart working del tuo team con un calendario mensile condiviso.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
