@@ -38,7 +38,7 @@ export function CalendarioApp() {
   const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [isEditingMainTitle, setIsEditingMainTitle] = useState(false);
   
-  const { projects, currentProjectId, switchProject, addProject, updateProjectName, removeProject, loading: projectsLoading } = useProjectStore();
+  const { projects, currentProjectId, switchProject, addProject, updateProjectName, removeProject, toggleCustomHoliday, loading: projectsLoading } = useProjectStore();
   const { people, leaves, loading: leavesLoading, addPerson, removePerson, updatePersonName, toggleLeave, copyPeopleFromMonth } = useLeaveStore(currentProjectId);
 
   const loading = projectsLoading || leavesLoading;
@@ -448,6 +448,10 @@ export function CalendarioApp() {
           onUpdatePersonName={updatePersonName}
           onSetEditingPersonId={setEditingPersonId}
           onRemovePerson={removePerson}
+          customHolidays={currentProject?.customHolidays}
+          onToggleHoliday={(dateStr) => {
+            if (currentProjectId) toggleCustomHoliday(currentProjectId, dateStr);
+          }}
         />
       </div>
 
@@ -474,6 +478,7 @@ export function CalendarioApp() {
                 editingPersonId={null}
                 isPrintVersion={true}
                 projectName={displayTitle}
+                customHolidays={currentProject?.customHolidays}
               />
               {/* Notes box to fill remaining space */}
               <div className="mt-6 flex-1 min-h-[150px] border-2 border-slate-200 rounded-xl p-5 flex flex-col bg-slate-50/50">

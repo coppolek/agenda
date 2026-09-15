@@ -17,6 +17,8 @@ interface MonthTableProps {
   onRemovePerson?: (id: string) => void;
   isPrintVersion?: boolean;
   projectName?: string;
+  customHolidays?: string[];
+  onToggleHoliday?: (dateStr: string) => void;
   key?: React.Key;
 }
 
@@ -32,6 +34,8 @@ export function MonthTable({
   onRemovePerson,
   isPrintVersion = false,
   projectName,
+  customHolidays = [],
+  onToggleHoliday,
 }: MonthTableProps) {
   const daysInMonth = getDaysInMonth(currentDate);
   const days = Array.from({ length: daysInMonth }, (_, i) => new Date(getYear(currentDate), getMonth(currentDate), i + 1));
@@ -64,12 +68,18 @@ export function MonthTable({
                 Nome
               </th>
               {days.map(d => {
-                const isHoliday = isItalianHoliday(d);
+                const dateStr = format(d, 'yyyy-MM-dd');
+                const isCustomHoliday = customHolidays.includes(dateStr);
+                const isHoliday = isItalianHoliday(d) || isCustomHoliday;
                 const isSunday = getDay(d) === 0;
                 const isSaturday = getDay(d) === 6;
                 return (
-                <th key={d.toISOString()} className={cn(
+                <th key={d.toISOString()} 
+                    onClick={() => !isPrintVersion && onToggleHoliday?.(dateStr)}
+                    title={!isPrintVersion ? "Clicca per segnare/rimuovere come festività/chiusura" : undefined}
+                    className={cn(
                   "p-2 text-center border-b border-r border-slate-100 min-w-[40px]",
+                  !isPrintVersion && "cursor-pointer hover:bg-slate-50 transition-colors",
                   (isHoliday || isSunday) ? "bg-red-100" : isSaturday ? "bg-sky-100" : "bg-white"
                 )}>
                   <div className="flex flex-col items-center gap-1">
@@ -153,7 +163,8 @@ export function MonthTable({
                   {days.map(d => {
                     const dateStr = format(d, 'yyyy-MM-dd');
                     const leaveType = personLeaves[dateStr];
-                    const isHoliday = isItalianHoliday(d);
+                    const isCustomHoliday = customHolidays.includes(dateStr);
+                    const isHoliday = isItalianHoliday(d) || isCustomHoliday;
                     const isSunday = getDay(d) === 0;
                     const isSaturday = getDay(d) === 6;
                     

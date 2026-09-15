@@ -5,6 +5,7 @@ import { collection, doc, setDoc, deleteDoc, onSnapshot, updateDoc } from 'fireb
 export interface Project {
   id: string;
   name: string;
+  customHolidays?: string[];
 }
 
 export function useProjectStore() {
@@ -22,6 +23,7 @@ export function useProjectStore() {
         newProjects.push({
           id: docSnap.id,
           name: docSnap.data()['name'] || 'Progetto Senza Nome',
+          customHolidays: docSnap.data()['customHolidays'] || [],
         });
       });
       setProjects(newProjects);
@@ -95,6 +97,25 @@ export function useProjectStore() {
     }
   };
 
+  const toggleCustomHoliday = async (id: string, dateStr: string) => {
+    const project = projects.find(p => p.id === id);
+    if (!project) return;
+    
+    const currentHolidays = project.customHolidays || [];
+    const isHoliday = currentHolidays.includes(dateStr);
+    const newHolidays = isHoliday 
+      ? currentHolidays.filter(d => d !== dateStr)
+      : [...currentHolidays, dateStr];
+
+    // Optimistic
+    setProjects(prev => prev.map(p => p.id === id ? { ...p, customHolidays: newHolidays } : p));
+    try {
+      await updateDoc(doc(db, 'projects', id), { customHolidays: newHolidays });
+    } catch (e) {
+      console.error("Error updating custom holidays:", e);
+    }
+  };
+
   return {
     projects,
     currentProjectId,
@@ -102,6 +123,7 @@ export function useProjectStore() {
     switchProject,
     addProject,
     removeProject,
-    updateProjectName
+    updateProjectName,
+    toggleCustomHoliday
   };
 }
